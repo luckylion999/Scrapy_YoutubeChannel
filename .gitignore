@@ -1,0 +1,6 @@
+*.csv
+*.pyc
+__init__.py
+.idea/
+.result/
+__pycache__/
