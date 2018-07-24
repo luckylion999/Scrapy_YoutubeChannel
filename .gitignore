@@ -1,4 +1,5 @@
 *.csv
+*.csv#
 *.pyc
 __init__.py
 .idea/

@@ -3,6 +3,7 @@ import re
 import xlrd
 import json
 import requests
+from urllib.parse import urljoin
 from lxml import html
 from Scrapy_Youtube_Channels.items import YoutubeVideoItem
 
@@ -23,7 +24,8 @@ class ChannelVideoCrawler(scrapy.Spider):
 
         file = xlrd.open_workbook("top youtube channels to scrape.xlsx")
         sheet = file.sheet_by_index(0)
-        for k in range(1, sheet.nrows):
+        # for k in range(1, sheet.nrows):
+        for k in range(1, 5000):
             channel_video_url_list.append(str(sheet.row_values(k)[11]))
             channel_url_list.append(str(sheet.row_values(k)[7]))
             channel_name_list.append(str(sheet.row_values(k)[8]))
@@ -59,6 +61,9 @@ class ChannelVideoCrawler(scrapy.Spider):
             item['video_views'] = video.get('gridVideoRenderer', {}).get('viewCountText', {}).get('simpleText')
             item['video_length'] = video.get('gridVideoRenderer', {}).get('thumbnailOverlays')[0]\
                                     .get('thumbnailOverlayTimeStatusRenderer').get('text', {}).get('simpleText')
+            item['video_url'] = urljoin(response.url,
+                                        video.get('gridVideoRenderer', {}).get('navigationEndpoint', {}).get('commandMetadata', {})
+                                        .get('webCommandMetadata', {}).get('url'))
             yield item
 
         continue_data = json_data.get('continuations')[0].get('nextContinuationData', {})
@@ -69,12 +74,14 @@ class ChannelVideoCrawler(scrapy.Spider):
             new_data = requests.get(ajax_url).json()
             content = html.fromstring(new_data.get('content_html', {})).xpath('//div[@class="yt-lockup-thumbnail"]')[0]
             title_array = content.xpath('//a[contains(@class, "yt-uix-tile-link")]/@title')
+            href_array = content.xpath('//a[contains(@class, "yt-uix-tile-link")]/@href')
             views_array = content.xpath('//ul[@class="yt-lockup-meta-info"]/li[1]/text()')
             age_array = content.xpath('//ul[@class="yt-lockup-meta-info"]/li[2]/text()')
             length_array = content.xpath('//span[@class="video-time"]/span/text()')
 
             for i in range(len(title_array)):
                 item['video_title'] = str(title_array[i])
+                item['video_url'] = urljoin(response.url, str(href_array[i]))
                 item['video_age'] = str(age_array[i])
                 item['video_views'] = str(views_array[i])
                 item['video_length'] = str(length_array[i])

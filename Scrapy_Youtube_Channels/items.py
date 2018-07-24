@@ -28,3 +28,4 @@ class YoutubeVideoItem(scrapy.Item):
     video_age = scrapy.Field()
     video_length = scrapy.Field()
     video_views = scrapy.Field()
+    video_url = scrapy.Field()
