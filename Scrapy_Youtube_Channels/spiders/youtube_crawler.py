@@ -84,10 +84,9 @@ class YoutubeChannelCrawler(scrapy.Spider):
 
         first = response.meta.pop('first', None)
         if first:
-            # results = response.css('.results-title::text').extract_first()
-            # N = int(results.split()[0].replace(',', ''))
+            results = response.css('.results-title::text').extract_first()
+            N = int(results.split()[0].replace(',', ''))
             url = response.url + '/page:'
-            N = 100000
             for i in range(2, math.ceil(N / 20) + 1):
                 if i == 2:
                     last = first

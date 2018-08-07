@@ -24,8 +24,7 @@ class ChannelVideoCrawler(scrapy.Spider):
 
         file = xlrd.open_workbook("top youtube channels to scrape.xlsx")
         sheet = file.sheet_by_index(0)
-        # for k in range(1, sheet.nrows):
-        for k in range(1, 5000):
+        for k in range(1, sheet.nrows):
             channel_video_url_list.append(str(sheet.row_values(k)[11]))
             channel_url_list.append(str(sheet.row_values(k)[7]))
             channel_name_list.append(str(sheet.row_values(k)[8]))
@@ -43,7 +42,6 @@ class ChannelVideoCrawler(scrapy.Spider):
 
     def parse(self, response):
         item = response.meta.get('item')
-        # item = YoutubeVideoItem()
 
         data = re.search('ytInitialData"] = (.*?);', response.body_as_unicode(), re.DOTALL)
         if data:
